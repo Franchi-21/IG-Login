@@ -1,7 +1,6 @@
 package com.example.a
 
 import android.app.Activity
-import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,9 +28,9 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,16 +43,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.a.login.LoginViewModel
 
 @Composable
-fun Layout() {
+fun Layout(loginVM: LoginViewModel) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(6.dp)
+            .padding(6.dp),
     ) {
         CloseAppIcon(modifier = Modifier.align(Alignment.TopEnd))
-        LoginAndLogo(modifier = Modifier.align(Alignment.Center))
+        LoginAndLogo(modifier = Modifier.align(Alignment.Center), loginVM = loginVM)
         SignupFooter(modifier = Modifier.align(Alignment.BottomCenter))
     }
 }
@@ -63,7 +63,7 @@ fun SignupFooter(modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth()) {
         Divider(
             color = Color(0xFFD7D7D7),
-            modifier = Modifier.height(1.dp)
+            modifier = Modifier.height(1.dp),
         )
         Spacer(Modifier.size(25.dp))
         SignUp()
@@ -76,7 +76,7 @@ fun SignUp() {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Text(text = "Don't have an account?", color = Color(0xFFD3D3D3))
         Text(
@@ -84,27 +84,25 @@ fun SignUp() {
             modifier = Modifier
                 .clickable { /* TODO */ }
                 .padding(5.dp),
-            color = Color(0xFF42acff)
+            color = Color(0xFF42acff),
         )
     }
 }
 
 @Composable
-fun LoginAndLogo(modifier: Modifier = Modifier) {
-    var email by rememberSaveable { mutableStateOf("") }
-    var pass by rememberSaveable { mutableStateOf("") }
-    var isLoginEnabled by rememberSaveable { mutableStateOf(false) }
+fun LoginAndLogo(modifier: Modifier = Modifier, loginVM: LoginViewModel) {
+    val email by loginVM.email.observeAsState(initial = "")
+    val pass by loginVM.pass.observeAsState(initial = "")
+    val isLoginEnabled by loginVM.isLoginCorrect.observeAsState(initial = false)
     Column(modifier = modifier) {
         Logo(modifier = Modifier.align(Alignment.CenterHorizontally))
         Spacer(Modifier.size(20.dp))
         EmailPrompt(email = email) {
-            email = it
-            isLoginEnabled = checkPassAndEmail(pass = pass, email = email)
+            loginVM.onLoginChange(email = it, pass = pass)
         }
         Spacer(Modifier.size(6.dp))
         PassPrompt(pass = pass) {
-            pass = it
-            isLoginEnabled = checkPassAndEmail(pass = pass, email = email)
+            loginVM.onLoginChange(email = email, pass = it)
         }
         Spacer(Modifier.size(15.dp))
         ForgotPassword(modifier = Modifier.align(Alignment.End))
@@ -117,26 +115,23 @@ fun LoginAndLogo(modifier: Modifier = Modifier) {
     }
 }
 
-fun checkPassAndEmail(pass: String, email: String) =
-    pass.length > 12 && Patterns.EMAIL_ADDRESS.matcher(email).matches()
-
 @Composable
 fun LoginFacebook() {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
     ) {
         Image(
             painter = painterResource(id = R.drawable.fb),
             contentDescription = "fbLogo",
-            modifier = Modifier.size(25.dp)
+            modifier = Modifier.size(25.dp),
         )
         Text(
             text = "Continue as Dave Johnson",
             color = Color(0xFF42acff),
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 6.dp)
+            modifier = Modifier.padding(horizontal = 6.dp),
         )
     }
 }
@@ -145,26 +140,26 @@ fun LoginFacebook() {
 fun SpacerLogin() {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Divider(
             color = Color(0xFFD7D7D7),
             modifier = Modifier
                 .height(1.dp)
-                .weight(1f)
+                .weight(1f),
         )
         Text(
             text = "OR",
             fontWeight = FontWeight.Bold,
             fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 25.dp),
-            color = Color(0xFFB5B5B5)
+            color = Color(0xFFB5B5B5),
         )
         Divider(
             color = Color(0xFFD7D7D7),
             modifier = Modifier
                 .height(1.dp)
-                .weight(1f)
+                .weight(1f),
         )
     }
 }
@@ -180,9 +175,9 @@ fun LoginButton(isLoginEnabled: Boolean) {
             backgroundColor = Color(0xFF42acff),
             disabledBackgroundColor = Color(0xFF71b3fe),
             contentColor = Color.White,
-            disabledContentColor = Color.White
+            disabledContentColor = Color.White,
         ),
-        enabled = isLoginEnabled
+        enabled = isLoginEnabled,
     ) {
         Text(text = "Log in", color = Color.White)
     }
@@ -194,7 +189,7 @@ fun ForgotPassword(modifier: Modifier = Modifier) {
         text = "Forgot password?",
         color = Color(red = 0, green = 113, blue = 188),
         modifier = modifier,
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
     )
 }
 
@@ -216,7 +211,7 @@ fun PassPrompt(pass: String, onValueChange: (String) -> Unit) {
         colors = TextFieldDefaults.outlinedTextFieldColors(
             backgroundColor = Color(0xFFedeeee),
             focusedBorderColor = Color.Transparent,
-            unfocusedBorderColor = Color.Transparent
+            unfocusedBorderColor = Color.Transparent,
         ),
         trailingIcon = {
             val showPassIcon = if (showPass) {
@@ -227,10 +222,10 @@ fun PassPrompt(pass: String, onValueChange: (String) -> Unit) {
             IconButton(onClick = { showPass = !showPass }) {
                 Icon(
                     imageVector = showPassIcon,
-                    contentDescription = "showPass"
+                    contentDescription = "showPass",
                 )
             }
-        }
+        },
     )
 }
 
@@ -246,8 +241,8 @@ fun EmailPrompt(email: String, onValueChange: (String) -> Unit) {
         colors = TextFieldDefaults.outlinedTextFieldColors(
             backgroundColor = Color(0xFFedeeee),
             focusedBorderColor = Color.Transparent,
-            unfocusedBorderColor = Color.Transparent
-        )
+            unfocusedBorderColor = Color.Transparent,
+        ),
     )
 }
 
@@ -256,7 +251,7 @@ fun Logo(modifier: Modifier = Modifier) {
     Image(
         painter = painterResource(id = R.drawable.insta),
         contentDescription = "igLogo",
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -266,6 +261,6 @@ private fun CloseAppIcon(modifier: Modifier = Modifier) {
     Icon(
         imageVector = Icons.Default.Close,
         contentDescription = "closeApp",
-        modifier = modifier.clickable { context.finish() }
+        modifier = modifier.clickable { context.finish() },
     )
 }
