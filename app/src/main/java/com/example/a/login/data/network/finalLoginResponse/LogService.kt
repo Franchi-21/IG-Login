@@ -1,4 +1,4 @@
-package com.example.a.data.network.finalLoginResponse
+package com.example.a.login.data.network.finalLoginResponse
 
 import com.example.a.core.network.RetrofitInstance
 import kotlinx.coroutines.Dispatchers
@@ -9,8 +9,8 @@ class LogService {
 
     suspend fun login(user: String, pass: String) = withContext(Dispatchers.IO) {
         val resp = retroInstance
-            .create(Client::class.java)
-            .login(user, pass)
-        resp.body()?.wasSuccessful ?: false
+            ?.create(Client::class.java)
+            ?.login()
+        resp?.body()?.wasSuccessful ?: false
     }
 }

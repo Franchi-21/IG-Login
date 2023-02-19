@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -47,14 +48,21 @@ import com.example.a.login.LoginViewModel
 
 @Composable
 fun Layout(loginVM: LoginViewModel) {
+    val isLoading by loginVM.isLoading.observeAsState(initial = false)
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(6.dp),
     ) {
-        CloseAppIcon(modifier = Modifier.align(Alignment.TopEnd))
-        LoginAndLogo(modifier = Modifier.align(Alignment.Center), loginVM = loginVM)
-        SignupFooter(modifier = Modifier.align(Alignment.BottomCenter))
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+        } else {
+            CloseAppIcon(modifier = Modifier.align(Alignment.TopEnd))
+            LoginAndLogo(modifier = Modifier.align(Alignment.Center), loginVM = loginVM)
+            SignupFooter(modifier = Modifier.align(Alignment.BottomCenter))
+        }
     }
 }
 
@@ -107,7 +115,7 @@ fun LoginAndLogo(modifier: Modifier = Modifier, loginVM: LoginViewModel) {
         Spacer(Modifier.size(15.dp))
         ForgotPassword(modifier = Modifier.align(Alignment.End))
         Spacer(Modifier.size(20.dp))
-        LoginButton(isLoginEnabled = isLoginEnabled)
+        LoginButton(isLoginEnabled = isLoginEnabled, loginVM = loginVM)
         Spacer(Modifier.size(30.dp))
         SpacerLogin()
         Spacer(Modifier.size(30.dp))
@@ -165,9 +173,9 @@ fun SpacerLogin() {
 }
 
 @Composable
-fun LoginButton(isLoginEnabled: Boolean) {
+fun LoginButton(isLoginEnabled: Boolean, loginVM: LoginViewModel) {
     Button(
-        onClick = { },
+        onClick = { loginVM.onLogin() },
         modifier = Modifier
             .fillMaxWidth()
             .height(45.dp),

@@ -1,6 +1,6 @@
-package com.example.a.data.network
+package com.example.a.login.data.network
 
-import com.example.a.data.network.finalLoginResponse.LogService
+import com.example.a.login.data.network.finalLoginResponse.LogService
 
 class LoginRepository {
     private val api = LogService()
