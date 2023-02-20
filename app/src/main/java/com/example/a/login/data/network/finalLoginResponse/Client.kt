@@ -1,6 +1,5 @@
 package com.example.a.login.data.network.finalLoginResponse
 
-import com.example.a.login.data.network.finalLoginResponse.LogResponse
 import retrofit2.Response
 import retrofit2.http.GET
 
